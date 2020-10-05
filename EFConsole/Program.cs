@@ -96,7 +96,9 @@ namespace EFConsole
             Console.WriteLine($"\nFull Name List");
             PrintNameList(names);
 
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("\n\nUse PlayerID of the record that you want to update.\n\n");
+            Console.ResetColor();
 
             bool validId = false;
             int value = 0;
@@ -106,7 +108,7 @@ namespace EFConsole
 
                 if (value >= 1 && value <= 60)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine("\n\nUpdating the database...");
                     Console.ResetColor();
                     validId = true;
@@ -128,12 +130,25 @@ namespace EFConsole
                 item.Wins++;
                 context.SaveChanges();
 
-                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"\n{item.Name}'s win count has been updated!");
                 Thread.Sleep(1000);
 
                 PrintPlayerWins(item);
                 Console.ResetColor();
+            }
+
+        }
+
+        static void ViewWinners(List<Names> names)
+        {
+
+            var winnerList = names.FindAll(x => x.Wins > 0);
+
+            Console.WriteLine($"\n\n{"Name",8} {"Wins",16}");
+            foreach (Names n in winnerList)
+            {
+                Console.WriteLine($"{n.Name,-22} {n.Wins}");
             }
 
         }
@@ -158,7 +173,9 @@ namespace EFConsole
             PrintNameList(topFourList);
             Console.WriteLine($"count: {topFourList.Count}");
             Console.WriteLine();
-            Console.WriteLine("Press any key to go back to the Main Menu");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("\n\nPress any key to go back to the Main Menu");
+            Console.ResetColor();
             Console.ReadLine();
 
         }
@@ -175,6 +192,8 @@ namespace EFConsole
             Console.ResetColor();
             Console.WriteLine($"1) Add Tournament Winner");
             Console.WriteLine($"2) Get Tournament Name List");
+            Console.WriteLine($"3) View Winners");
+            Console.WriteLine($"8) View All Player Stats");
             Console.WriteLine($"9) Exit App");
             Console.WriteLine();
 
@@ -185,11 +204,15 @@ namespace EFConsole
             int count = n.Wins;
             if (count > 1)
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"\n{n.Name} now has {n.Wins} wins!\n\n");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"\n{n.Name} now has {n.Wins} win!\n\n");
+                Console.ResetColor();
             }
         }
 
@@ -208,12 +231,30 @@ namespace EFConsole
                 {
                     case 1:
                         SetTournamentWinner(names);
-                        Console.Write("\n\nPress enter go back to the main menu");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("\n\nPress enter to go back to the main menu");
+                        Console.ResetColor();
                         Console.ReadLine();
                         break;
                     case 2:
                         SetTournamentOrder(names);
-                        Console.Write("\n\nPress enter go back to the main menu");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("\n\nPress enter to go back to the main menu");
+                        Console.ResetColor();
+                        Console.ReadLine();
+                        break;
+                    case 3:
+                        ViewWinners(names);
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("\n\nPress enter to go back to the main menu");
+                        Console.ResetColor();
+                        Console.ReadLine();
+                        break;
+                    case 8:
+                        PrintNameList(names);
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("\n\nPress enter to go back to the main menu");
+                        Console.ResetColor();
                         Console.ReadLine();
                         break;
                     case 9:

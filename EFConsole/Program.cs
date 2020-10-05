@@ -23,8 +23,22 @@ namespace EFConsole
             Console.WriteLine();
             foreach (Names n in names)
             {
-                Console.WriteLine($"{n.NameId,4}  {n.Name,-22}{((n.TopBool == false) ? 0 : 1),3} " +
-                    $"{n.TopCount,3} {n.Wins,3}");
+
+                if (n.Wins > 0)
+                {
+                    Console.BackgroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"{n.NameId,4}  {n.Name,-22}{((n.TopBool == false) ? 0 : 1),3} " +
+                        $"{n.TopCount,3} {n.Wins,3}");
+                    Console.ResetColor();
+                    Console.WriteLine();
+                }
+                else
+                {
+                    Console.WriteLine($"{n.NameId,4}  {n.Name,-22}{((n.TopBool == false) ? 0 : 1),3} " +
+                        $"{n.TopCount,3} {n.Wins,3}");
+                }
+
             }
 
         }
@@ -83,8 +97,10 @@ namespace EFConsole
             string input = string.Empty;
             do
             {
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write("Please enter a selection: ");
                 input = Console.ReadLine();
+                Console.ResetColor();
             } while (!int.TryParse(input, out value));
 
             return value;
@@ -191,8 +207,8 @@ namespace EFConsole
             Console.WriteLine($"Main Menu");
             Console.ResetColor();
             Console.WriteLine($"1) Add Tournament Winner");
-            Console.WriteLine($"2) Get Tournament Name List");
-            Console.WriteLine($"3) View Winners");
+            Console.WriteLine($"2) Set Tournament Name List");
+            Console.WriteLine($"7) View Winners");
             Console.WriteLine($"8) View All Player Stats");
             Console.WriteLine($"9) Exit App");
             Console.WriteLine();
@@ -243,7 +259,7 @@ namespace EFConsole
                         Console.ResetColor();
                         Console.ReadLine();
                         break;
-                    case 3:
+                    case 7:
                         ViewWinners(names);
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("\n\nPress enter to go back to the main menu");

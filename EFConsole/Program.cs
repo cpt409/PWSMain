@@ -189,10 +189,6 @@ namespace EFConsole
             PrintNameList(topFourList);
             Console.WriteLine($"count: {topFourList.Count}");
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("\n\nPress any key to go back to the Main Menu");
-            Console.ResetColor();
-            Console.ReadLine();
 
         }
 

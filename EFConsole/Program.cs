@@ -186,13 +186,15 @@ namespace EFConsole
 
         static void ViewWinners(List<Names> names)
         {
-
+            Console.Clear();
             var winnerList = names.FindAll(x => x.Wins > 0).OrderByDescending(x => x.DateWin);
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"\n\n{"Name",8} {"Wins",20} {"Date of Win",15}");
+            Console.ResetColor();
             foreach (Names n in winnerList)
             {
-                Console.WriteLine($"{n.Name,-22} {n.Wins,5}\t  {n.DateWin:MM/dd/yyyy}");
+                Console.WriteLine($" {n.Name,-21} {n.Wins,5}\t  {n.DateWin:MM/dd/yyyy}");
             }
 
         }
@@ -223,51 +225,44 @@ namespace EFConsole
         static void ViewSingleWinner(List<Names> names)
         {
             Console.Clear();
-            Console.WriteLine($"\nFull Name List");
-            PrintNameList(names);
-
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("\n\nEnter PlayerID of the record that you want to view.\n\n");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"\tWin History");
             Console.ResetColor();
-
-            bool validId = false;
-            int value = 0;
-            do
-            {
-                value = GetInputInt();
-
-                if (value >= 1 && value <= 60)
-                {
-                    validId = true;
-                }
-                else
-                {
-                    validId = false;
-                }
-
-            } while (!validId);
-
-
+            Console.WriteLine("\n");
 
             using (var context = new PWS_NamesContext())
             {
-                var item = names.Find(f => f.NameId == value);
 
-                var q = context.WinHistory.Where(x => x.NameId == item.NameId)
-                    .OrderByDescending(x => x.WinDate);
+                var wh = context.WinHistory
+                    .OrderByDescending(x => x.WinHistoryId).ToList();
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"\n{item.Name}'s Win Listing:");
-                Console.ResetColor();
-                int count = 0;
-                foreach (var entry in q)
+                var winners = names.FindAll(x => x.Wins > 0);
+
+                var combined = (from n in winners
+                                join w in wh on n.NameId equals w.NameId into gj
+                                orderby n.Name
+                                select new
+                                {
+                                    cName = n.Name,
+                                    cWH = gj
+                                }).ToList();
+
+                foreach (var item in combined)
                 {
-                    Console.WriteLine($"\t{++count,-3}\t{entry.WinDate:MM/dd/yyyy}");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"  {item.cName}:");
+                    Console.ResetColor();
+                    foreach (var elem in item.cWH)
+                    {
+                        Console.WriteLine($"\t{elem.WinDate}");
+                    }
+
+                    Console.WriteLine("\n");
                 }
-
             }
-
         }
+
 
         static void PrintMenu()
         {

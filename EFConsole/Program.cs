@@ -3,7 +3,8 @@ using EFConsole.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
+using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace EFConsole
 {
@@ -18,6 +19,8 @@ namespace EFConsole
             }
         }
 
+
+
         static void PrintNameList(List<Names> names)
         {
             Console.WriteLine();
@@ -29,7 +32,7 @@ namespace EFConsole
                     Console.BackgroundColor = ConsoleColor.Blue;
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write($"{n.NameId,4}  {n.Name,-22}{((n.TopBool == false) ? 0 : 1),3} " +
-                        $"{n.TopCount,3} {n.Wins,3}");
+                        $"{n.TopCount,3} {n.Wins,3}     {n.DateWin:MM/dd/yyyy}");
                     Console.ResetColor();
                     Console.WriteLine();
                 }
@@ -113,7 +116,7 @@ namespace EFConsole
             PrintNameList(names);
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("\n\nUse PlayerID of the record that you want to update.\n\n");
+            Console.Write("\n\nEnter PlayerID of the record that you want to update.\n\n");
             Console.ResetColor();
 
             bool validId = false;
@@ -124,9 +127,14 @@ namespace EFConsole
 
                 if (value >= 1 && value <= 60)
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine("\n\nUpdating the database...");
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("Updating the database...");
                     Console.ResetColor();
+                    Console.ResetColor();
+                    Console.WriteLine();
                     validId = true;
                 }
                 else
@@ -144,27 +152,47 @@ namespace EFConsole
             {
                 var item = context.Names.First(f => f.NameId == value);
                 item.Wins++;
+                item.DateWin = DateTime.Now;
+
+                context.WinHistory.Add(new WinHistory
+                {
+                    NameId = item.NameId,
+                    WinDate = item.DateWin
+                });
+
                 context.SaveChanges();
 
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"\n{item.Name}'s win count has been updated!");
+                Console.WriteLine();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"{item.Name}'s win count has been updated!");
+                Console.ResetColor();
+                Console.ResetColor();
+
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"History table has been updated");
+                Console.ResetColor();
+                Console.ResetColor();
                 Thread.Sleep(1000);
 
+                Console.WriteLine();
                 PrintPlayerWins(item);
                 Console.ResetColor();
             }
-
         }
 
         static void ViewWinners(List<Names> names)
         {
 
-            var winnerList = names.FindAll(x => x.Wins > 0);
+            var winnerList = names.FindAll(x => x.Wins > 0).OrderByDescending(x => x.DateWin);
 
-            Console.WriteLine($"\n\n{"Name",8} {"Wins",16}");
+            Console.WriteLine($"\n\n{"Name",8} {"Wins",20} {"Date of Win",15}");
             foreach (Names n in winnerList)
             {
-                Console.WriteLine($"{n.Name,-22} {n.Wins}");
+                Console.WriteLine($"{n.Name,-22} {n.Wins,5}\t  {n.DateWin:MM/dd/yyyy}");
             }
 
         }
@@ -192,6 +220,55 @@ namespace EFConsole
 
         }
 
+        static void ViewSingleWinner(List<Names> names)
+        {
+            Console.Clear();
+            Console.WriteLine($"\nFull Name List");
+            PrintNameList(names);
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("\n\nEnter PlayerID of the record that you want to view.\n\n");
+            Console.ResetColor();
+
+            bool validId = false;
+            int value = 0;
+            do
+            {
+                value = GetInputInt();
+
+                if (value >= 1 && value <= 60)
+                {
+                    validId = true;
+                }
+                else
+                {
+                    validId = false;
+                }
+
+            } while (!validId);
+
+
+
+            using (var context = new PWS_NamesContext())
+            {
+                var item = names.Find(f => f.NameId == value);
+
+                var q = context.WinHistory.Where(x => x.NameId == item.NameId)
+                    .OrderByDescending(x => x.WinDate);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n{item.Name}'s Win Listing:");
+                Console.ResetColor();
+                int count = 0;
+                foreach (var entry in q)
+                {
+                    Console.WriteLine($"\t{++count,-3}\t{entry.WinDate:MM/dd/yyyy}");
+                }
+
+            }
+
+        }
+
         static void PrintMenu()
         {
             Console.Clear();
@@ -204,7 +281,8 @@ namespace EFConsole
             Console.ResetColor();
             Console.WriteLine($"1) Add Tournament Winner");
             Console.WriteLine($"2) Set Tournament Name List");
-            Console.WriteLine($"7) View Winners");
+            Console.WriteLine($"6) View Single Player Wins");
+            Console.WriteLine($"7) View All Winners");
             Console.WriteLine($"8) View All Player Stats");
             Console.WriteLine($"9) Exit App");
             Console.WriteLine();
@@ -250,6 +328,13 @@ namespace EFConsole
                         break;
                     case 2:
                         SetTournamentOrder(names);
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("\n\nPress enter to go back to the main menu");
+                        Console.ResetColor();
+                        Console.ReadLine();
+                        break;
+                    case 6:
+                        ViewSingleWinner(names);
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.Write("\n\nPress enter to go back to the main menu");
                         Console.ResetColor();

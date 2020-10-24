@@ -255,7 +255,7 @@ namespace EFConsole
                     Console.ResetColor();
                     foreach (var elem in item.cWH)
                     {
-                        Console.WriteLine($"\t{elem.WinDate}");
+                        Console.WriteLine($"\t{elem.WinDate:MM/dd/yyyy}");
                     }
 
                     Console.WriteLine("\n");
